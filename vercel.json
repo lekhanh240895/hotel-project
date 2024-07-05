@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/api/**/*": {
+      "maxDuration": 30
+    },
+    "app/[locale]/(dashboard)/dashboard/(chat)/chat/[id]/page.tsxchat/[id]/page.tsx": {
+      "maxDuration": 60
+    },
+    "app/[locale]/(dashboard)/dashboard/(chat)/chatbot/page.tsx": {
+      "maxDuration": 60
+    }
+  }
+}

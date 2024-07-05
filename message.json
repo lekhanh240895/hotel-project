@@ -1,0 +1,19 @@
+[
+  { "id": "GdrBZYb", "role": "user", "content": "\\n\\nhello man" },
+  { "id": "30SaBBX", "role": "assistant", "content": "Hello" },
+  {
+    "id": "tvm8brh",
+    "role": "assistant",
+    "content": "Hello there! 👋 \\n\\nI'm here to help you plan your holiday in"
+  },
+  {
+    "id": "ex2JGDX",
+    "role": "assistant",
+    "content": "Hello there! 👋 \\n\\nI'm here to help you plan your holiday in Vietnam. Where are you thinking of going? I can give you some ideas or"
+  },
+  {
+    "id": "vIWSHJp",
+    "role": "assistant",
+    "content": "Hello there! 👋 \\n\\nI'm here to help you plan your holiday in Vietnam. Where are you thinking of going? I can give you some ideas or you can tell me your preferences! 😊 \\n"
+  }
+]

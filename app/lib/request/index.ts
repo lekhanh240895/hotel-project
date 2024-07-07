@@ -1,5 +1,5 @@
 import querystring from 'query-string';
-import { myFetch } from '../exceptions';
+import { myFetch } from '../utils';
 
 const appendParamsToUrl = (url: string, params?: Record<string, any>) => {
   if (!params || !Object.keys(params).length) return url;

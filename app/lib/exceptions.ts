@@ -1,3 +1,6 @@
+import * as yup from 'yup';
+import { INVALID_TOKEN } from './constants/errors';
+
 export class FetchException extends Error {
   constructor(
     message = 'Server Error: There is an issue retrieving the data.'
@@ -7,7 +10,7 @@ export class FetchException extends Error {
   }
 }
 
-class ResponseError extends Error {
+export class ResponseError extends Error {
   response: Response;
 
   constructor(message: string, res: Response) {
@@ -16,38 +19,110 @@ class ResponseError extends Error {
   }
 }
 
-export async function myFetch<Type = any>(
-  input: RequestInfo | URL,
-  options?: RequestInit
-) {
-  const res = await fetch(input, options);
-  if (!res.ok) {
-    throw new ResponseError('Bad fetch response', res);
+export class ApiError extends Error {
+  constructor(
+    public error_id: string,
+    public title: string,
+    public message: string,
+    public errors: {
+      error_id: string;
+      title: string;
+      message: string;
+      field?: string;
+    }[] = []
+  ) {
+    super(message);
   }
-  return (await res.json()) as Type;
+
+  static fromYupError(
+    yupError: yup.ValidationError,
+    error_id: string
+  ): ApiError {
+    const errors = yupError.inner.map((err) => ({
+      error_id: error_id,
+      title: 'Validation error',
+      message: err.errors[0],
+      field: err.path
+    }));
+
+    return new ApiError(
+      'CUS-0004',
+      'Validation error',
+      'One or more field input values are invalid. Please check again.',
+      errors
+    );
+  }
+
+  static fromNoutfound() {
+    return new ApiError('CUS-0608', 'NOT_FOUND', 'An unknown error occurred.');
+  }
+
+  static fromInvalidEmailPassword() {
+    return new ApiError(
+      'LO-0001',
+      'Login error',
+      'Invalid username or password.'
+    );
+  }
+
+  static fromUnauthorized() {
+    return new ApiError(INVALID_TOKEN, 'Unauthorized', 'Invalid token.');
+  }
+
+  static fromUnverified() {
+    return new ApiError(
+      'LO-0003',
+      'Unverified user',
+      'Unverified user. Please check your email.'
+    );
+  }
+
+  static fromInvalidToken() {
+    return new ApiError(INVALID_TOKEN, 'Auth error', 'Invalid token.');
+  }
+
+  static fromInvalidRegisterToken() {
+    return new ApiError('RE-0003', 'Unauthorized', 'Invalid token.');
+  }
+
+  static fromEmailExists() {
+    return new ApiError(
+      'RE-0001',
+      'Register error',
+      'One or more field input values are invalid. Please check again.',
+      [
+        {
+          error_id: 'RE-0001',
+          title: 'Register error',
+          message: 'Email already exists.',
+          field: 'email'
+        }
+      ]
+    );
+  }
+
+  static fromUnexpected(): ApiError {
+    return new ApiError(
+      'US-0500',
+      'Internal Server Error',
+      'An unexpected error occurred. Please try again later.'
+    );
+  }
+
+  toJSON(): Record<string, unknown> {
+    return {
+      error: {
+        error_id: this.error_id,
+        title: this.title,
+        message: this.message,
+        errors: this.errors
+      }
+    };
+  }
 }
 
-export async function handleError(err: unknown) {
-  if (err instanceof ResponseError) {
-    switch (err.response.status) {
-      case 401:
-        // Prompt the user to log back in
-        // showUnauthorizedDialog();
-        console.log('Unauthorized!');
-        break;
-      case 404:
-        console.log('Not found!');
-        break;
-      case 500:
-        // Show user a dialog to apologize that we had an error and to
-        // try again and if that doesn't work contact support
-        // showErrorDialog();
-        console.log('500 error');
-        break;
-      default:
-        // Show
-        throw new Error('Unhandled fetch response', { cause: err });
-    }
-  }
-  throw new Error('Unknown fetch error', { cause: err });
+export function handleError(error: ApiError, status: number) {
+  return Response.json(error.toJSON(), {
+    status
+  });
 }

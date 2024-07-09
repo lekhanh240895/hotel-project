@@ -1,11 +1,11 @@
 import MapBox from '../components/Map';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import NetworkGraph from '../components/NetworkGraph';
 
-export default async function Home() {
+export default async function Homepage() {
   return (
-    <main>
+    <div>
       <MapBox />
-    </main>
+    </div>
   );
 }

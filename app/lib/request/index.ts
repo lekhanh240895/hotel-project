@@ -21,7 +21,8 @@ interface IRequestOptions {
 const request = fetchInterceptor({
   baseUrl: process.env.NEXT_PUBLIC_API_URL || '',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept-Language': 'en'
   },
   interceptors: {
     response: async (res, req, fetch) => {
@@ -42,7 +43,7 @@ const processBodyType = (
 
   if (bodyType === BodyType.Json) {
     headers = {
-      'Content-Type': 'application/json'
+      'Content`-Type': 'application/json'
     };
     bodyToSend = body ? JSON.stringify(body) : '';
   } else if (bodyType === BodyType.Urlencoded) {

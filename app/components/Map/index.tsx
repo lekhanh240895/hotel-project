@@ -15,6 +15,8 @@ import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import GeocoderControl from '../geocoder-control';
 import { Button } from '../ui/button';
 import { XMarkIcon } from '@heroicons/react/24/solid';
+import NetworkGraph from '../NetworkGraph';
+import { cn } from '@/app/lib/utils';
 
 const initCoor = {
   longitude: 107.58592685189807,
@@ -23,76 +25,60 @@ const initCoor = {
 
 const items = [
   {
-    id: 1,
-    name: 'Hà Nội',
-    coordinate: [105.8364073325831, 21.028907290300452],
-    isPoi: true
+    type: 'Feature',
+    text: 'Hanoi',
+    place_name: 'Hanoi, Vietnam',
+    center: [105.8544441, 21.0294498],
+    geometry: { type: 'Point', coordinates: [105.8544441, 21.0294498] },
+    id: 'place.17652',
+    place_type: ['region', 'place']
   },
   {
-    id: 2,
-    name: 'Hải Phòng',
-    coordinate: [106.69976002558418, 20.85234664799437],
-
-    isPoi: false
+    type: 'Feature',
+    text: 'Hoa Lư',
+    place_name: 'Hoa Lư, Ninh Bình, Vietnam',
+    center: [105.952817, 20.299218],
+    geometry: { type: 'Point', coordinates: [105.952817, 20.299218] },
+    id: 'place.7432436',
+    place_type: ['place']
   },
   {
-    id: 3,
-    name: 'Hoa Lư',
-    coordinate: [105.91438644915154, 20.242169694462298],
-    isPoi: false
+    type: 'Feature',
+    text: 'Haiphong',
+    place_name: 'Haiphong, Vietnam',
+    center: [106.6749591, 20.858864],
+    geometry: { type: 'Point', coordinates: [106.6749591, 20.858864] },
+    id: 'place.509172',
+    place_type: ['region', 'place']
   },
   {
-    id: 4,
-    name: 'Đà Nẵng',
-    coordinate: [108.1879753388382, 16.05063100157338],
-    isPoi: false
+    type: 'Feature',
+    text: 'Da Nang',
+    place_name: 'Da Nang, Vietnam',
+    center: [108.212, 16.068],
+    geometry: { type: 'Point', coordinates: [108.212, 16.068] },
+    id: 'place.50420',
+    place_type: ['region', 'place']
   },
   {
-    id: 5,
-    name: 'Quảng Ngãi',
-    coordinate: [108.80870017543525, 15.12460730587804],
-    isPoi: false
+    type: 'Feature',
+    text: 'Quảng Ngãi',
+    place_name: 'Quảng Ngãi, Quảng Ngãi, Vietnam',
+    center: [108.802335, 15.119295],
+    geometry: { type: 'Point', coordinates: [108.802335, 15.119295] },
+    id: 'place.4974836',
+    place_type: ['place']
   },
   {
-    id: 6,
-    name: 'Vũng Tàu',
-    coordinate: [107.10610226328903, 10.383013571277083],
-    isPoi: true
+    type: 'Feature',
+    text: 'Vũng Tàu',
+    place_name: 'Vũng Tàu, Bà Rịa-Vũng Tàu, Vietnam',
+    center: [107.076476, 10.345796],
+    geometry: { type: 'Point', coordinates: [107.076476, 10.345796] },
+    id: 'place.5703924',
+    place_type: ['place']
   }
 ];
-
-interface IPlace {
-  id: string;
-  type: string;
-  place_type: string[];
-  relevance: number;
-  properties: {
-    mapbox_id: string;
-    wikidata: string;
-  };
-  text: string;
-  place_name: string;
-  bbox: number[];
-  center: number[];
-  geometry: {
-    type: string;
-    coordinates: number[];
-  };
-  context: Array<{
-    id: string;
-    mapbox_id: string;
-    wikidata: string;
-    short_code: string;
-    text: string;
-  }>;
-}
-
-interface ILocation {
-  id: number;
-  name: string;
-  coordinate: number[];
-  isPoi: boolean;
-}
 
 export default function MapBox() {
   const [viewState, setViewState] = useState({
@@ -101,16 +87,16 @@ export default function MapBox() {
   });
   const [locations, setLocations] = useState<ILocation[]>(items);
   const [route, setRoute] = useState<ILocation[]>(items);
-  const [showLine, setShowLine] = useState(true);
+  const [showType, setShowType] = useState('Line');
 
   const renderMarkers = () => {
-    const markers = route.map((location, index) => {
-      if (location.isPoi) {
+    const markers = route.map((location) => {
+      if (location.place_type.includes('poi')) {
         return (
           <Marker
-            key={location.name + location.id + index}
-            longitude={location.coordinate[0]}
-            latitude={location.coordinate[1]}
+            key={location.id}
+            longitude={location.center[0]}
+            latitude={location.center[1]}
             anchor="bottom"
           >
             <svg
@@ -126,9 +112,9 @@ export default function MapBox() {
       } else {
         return (
           <Marker
-            key={location.name + location.id + index}
-            longitude={location.coordinate[0]}
-            latitude={location.coordinate[1]}
+            key={location.id}
+            longitude={location.center[0]}
+            latitude={location.center[1]}
             anchor="bottom"
           >
             <div className="rounded-full bg-blue-700 p-1">
@@ -142,16 +128,16 @@ export default function MapBox() {
   };
 
   const renderRouteMarkers = () => {
-    const markers = route.map((location, index) => {
+    const markers = route.map((location) => {
       const isDestination =
-        location.name === route[route.length - 1].name &&
-        location.name === route[0].name;
+        location.text === route[route.length - 1].text &&
+        location.text === route[0].text;
       if (isDestination) {
         return (
           <Marker
-            key={location.name + location.id + index}
-            longitude={location.coordinate[0]}
-            latitude={location.coordinate[1]}
+            key={location.id}
+            longitude={location.center[0]}
+            latitude={location.center[1]}
             anchor="bottom"
           >
             <svg
@@ -167,9 +153,9 @@ export default function MapBox() {
       } else {
         return (
           <Marker
-            key={location.name + location.id + index}
-            longitude={location.coordinate[0]}
-            latitude={location.coordinate[1]}
+            key={location.id}
+            longitude={location.center[0]}
+            latitude={location.center[1]}
             anchor="bottom"
           >
             <div className="rounded-full bg-blue-700 p-1">
@@ -189,7 +175,7 @@ export default function MapBox() {
         type: 'Feature',
         geometry: {
           type: 'LineString',
-          coordinates: route.map((l) => l.coordinate)
+          coordinates: route.map((location) => location.center)
         }
       }
     ]
@@ -218,19 +204,46 @@ export default function MapBox() {
 
   const handleSelect = (e: any) => {
     const result: IPlace = e.result;
+    const {
+      text,
+      place_name,
+      center,
+      geometry,
+      id: string,
+      place_type,
+      type
+    } = result;
+
     setLocations((prev) => [
       ...prev,
       {
-        id: Number(result.id),
-        name: result.text,
-        coordinate: result.geometry.coordinates,
-        isPoi: result ? result.place_type.includes('poi') : false
+        type,
+        text,
+        place_name,
+        center,
+        geometry,
+        id: string,
+        place_type
       }
     ]);
   };
 
+  const netWorkData = route.map((location) => {
+    const { center, text, id, place_type } = location;
+    return {
+      x: center[0],
+      y: center[1],
+      label: text,
+      id: id,
+      size: place_type.includes('poi') ? 10 : 5,
+      color: '',
+      opacity: 1,
+      place_type: place_type
+    };
+  });
+
   return (
-    <div className="mx-auto h-screen w-full max-w-7xl p-4 md:p-10">
+    <div className="mx-auto h-screen min-h-screen w-full max-w-7xl p-4 md:p-10">
       <pre className="mb-10 text-wrap text-lg">
         Notes:
         <br />
@@ -238,8 +251,8 @@ export default function MapBox() {
         <br />* Click on a location to add into route
         <br />
         * Add new location by using the search in map
-        <br />* Show type: Line mapping (default) and route mapping
-        <br />* Change show type by click <b>Change type</b> button
+        <br />* Show type: Line, route and graph
+        <br />* Change show type by click type button
       </pre>
 
       <h1 className="my-10 text-center text-4xl font-bold">
@@ -249,9 +262,9 @@ export default function MapBox() {
       <div className="my-4 space-y-2">
         <h1 className="text-lg font-medium">List locations</h1>
         <div className="flex flex-wrap gap-4 border p-6">
-          {locations.map((l, index) => (
-            <Button key={l.name + l.id + index} onClick={() => handleAdd(l)}>
-              {l.name}
+          {locations.map((l) => (
+            <Button key={l.id} onClick={() => handleAdd(l)}>
+              {l.text}
             </Button>
           ))}
         </div>
@@ -259,18 +272,25 @@ export default function MapBox() {
 
       <div className="my-4 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-lg font-medium">
-            Selected route ({showLine ? 'Line mapping' : 'Route mapping'})
-          </h1>
-          <Button onClick={() => setShowLine(!showLine)}>Change type</Button>
+          <h1 className="text-lg font-medium">Selected route</h1>
+          <div className="flex min-w-16 gap-3">
+            {['Line', 'Route', 'Graph'].map((text, index) => (
+              <Button
+                key={index}
+                onClick={() => setShowType(text)}
+                className={cn({
+                  'bg-blue-500': showType === text
+                })}
+              >
+                {text}
+              </Button>
+            ))}
+          </div>
         </div>
         <div className="relative flex flex-wrap gap-4 border p-6 pr-16">
           {route.map((l, index) => (
-            <Button
-              key={l.name + l.id + index}
-              onClick={() => handleRemove(index)}
-            >
-              {l.name}
+            <Button key={l.text} onClick={() => handleRemove(index)}>
+              {l.text}
             </Button>
           ))}
           {route.length > 0 && (
@@ -286,38 +306,42 @@ export default function MapBox() {
         </div>
       </div>
 
-      <Map
-        reuseMaps
-        {...viewState}
-        onMove={(event) => setViewState(event.viewState)}
-        style={{
-          width: '100%',
-          height: '100%'
-        }}
-        mapStyle="mapbox://styles/mapbox/streets-v9"
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
-      >
-        <FullscreenControl />
-        <GeolocateControl />
-        <NavigationControl />
-        <ScaleControl />
-        <GeocoderControl
-          mapboxAccessToken={
-            process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string
-          }
-          position="top-left"
-          onResult={handleSelect}
-          proximity={{
-            latitude: 21.026037129152332,
-            longitude: 105.83197966918473
+      {showType === 'Graph' ? (
+        <NetworkGraph data={netWorkData} />
+      ) : (
+        <Map
+          reuseMaps
+          {...viewState}
+          onMove={(event) => setViewState(event.viewState)}
+          style={{
+            width: '100%',
+            height: '100%'
           }}
-          countries="vn"
-        />
-        <Source id="line" type="geojson" data={geojson}>
-          <Layer {...layerStyle} />
-        </Source>
-        {showLine ? renderMarkers() : renderRouteMarkers()}
-      </Map>
+          mapStyle="mapbox://styles/mapbox/streets-v9"
+          mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN}
+        >
+          <FullscreenControl />
+          <GeolocateControl />
+          <NavigationControl />
+          <ScaleControl />
+          <GeocoderControl
+            mapboxAccessToken={
+              process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string
+            }
+            position="top-left"
+            onResult={handleSelect}
+            proximity={{
+              latitude: 21.026037129152332,
+              longitude: 105.83197966918473
+            }}
+            countries="vn"
+          />
+          <Source id="line" type="geojson" data={geojson}>
+            <Layer {...layerStyle} />
+          </Source>
+          {showType === 'Line' ? renderMarkers() : renderRouteMarkers()}
+        </Map>
+      )}
     </div>
   );
 }

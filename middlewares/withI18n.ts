@@ -6,6 +6,7 @@ import { i18nConfig } from '@/i18nConfig';
 
 export const withI18n: MiddlewareFactory = (next) => {
   return async (request: NextRequest, _next: NextFetchEvent) => {
-    return i18nRouter(request, i18nConfig);
+    const response = i18nRouter(request, i18nConfig);
+    return response;
   };
 };

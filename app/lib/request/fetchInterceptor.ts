@@ -9,20 +9,20 @@ export type FetchInterceptorDefaultOptions = {
   interceptors?: {
     request?: (
       requestArgs: FetchArgs,
-      fetch: NonNullable<FetchInterceptorDefaultOptions['fetch']>,
+      fetch: NonNullable<FetchInterceptorDefaultOptions['fetch']>
     ) => Promise<FetchArgs>;
 
     response?: (
       response: Response,
       requestArgs: FetchArgs,
-      fetch: NonNullable<FetchInterceptorDefaultOptions['fetch']>,
+      fetch: NonNullable<FetchInterceptorDefaultOptions['fetch']>
     ) => Promise<Response>;
   };
 };
 
 const applyDefaultOptions = (
   [input, requestInit]: FetchArgs,
-  defaultOptions?: FetchInterceptorDefaultOptions,
+  defaultOptions?: FetchInterceptorDefaultOptions
 ): FetchArgs => {
   const headers = new Headers(defaultOptions?.headers);
   new Headers(requestInit?.headers).forEach((value, key) => {
@@ -38,8 +38,8 @@ const applyDefaultOptions = (
     inputToReturn,
     {
       ...requestInit,
-      headers,
-    },
+      headers
+    }
   ];
 };
 
@@ -47,7 +47,7 @@ const applyDefaultOptions = (
 // If you have a better way, please let me know.
 const mergeRequestObjectWithRequestInit = (
   request: Request,
-  requestInit?: RequestInit,
+  requestInit?: RequestInit
 ): Promise<RequestInit> => {
   const mergedRequest = new Request(request, requestInit);
   return new Response(mergedRequest.body).arrayBuffer().then((body) => ({
@@ -63,11 +63,13 @@ const mergeRequestObjectWithRequestInit = (
     integrity: mergedRequest.integrity,
     keepalive: mergedRequest.keepalive,
     signal: mergedRequest.signal,
-    window: requestInit?.window,
+    window: requestInit?.window
   }));
 };
 
-const normalizeArgs = async (...args: Parameters<typeof fetch>): Promise<FetchArgs> => {
+const normalizeArgs = async (
+  ...args: Parameters<typeof fetch>
+): Promise<FetchArgs> => {
   let input: string | URL;
   let requestInit: RequestInit | undefined;
   if (args[0] instanceof Request) {
@@ -86,17 +88,18 @@ const fetchInterceptor =
   async (...args: Parameters<typeof fetch>): Promise<Response> => {
     const defaultOptionAppliedArgs = applyDefaultOptions(
       await normalizeArgs(...args),
-      defaultOptions,
+      defaultOptions
     );
 
     // apply request interceptor
     const fetchProvided = defaultOptions?.fetch || fetch;
     let requestInterceptorAppliedArgs: FetchArgs;
     if (defaultOptions?.interceptors?.request) {
-      requestInterceptorAppliedArgs = await defaultOptions?.interceptors?.request?.(
-        defaultOptionAppliedArgs,
-        fetchProvided,
-      );
+      requestInterceptorAppliedArgs =
+        await defaultOptions?.interceptors?.request?.(
+          defaultOptionAppliedArgs,
+          fetchProvided
+        );
     } else {
       requestInterceptorAppliedArgs = defaultOptionAppliedArgs;
     }
@@ -109,7 +112,7 @@ const fetchInterceptor =
       defaultOptions?.interceptors?.response?.(
         response,
         requestInterceptorAppliedArgs,
-        fetchProvided,
+        fetchProvided
       ) || response
     );
   };

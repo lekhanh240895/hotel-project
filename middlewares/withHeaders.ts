@@ -20,12 +20,12 @@ export const withHeaders: MiddlewareFactory = (next: NextMiddleware) => {
       if (USER_TOKEN_REQUIRED_FOR_ENDPOINTS.includes(path) || pathNameHasId) {
         headers.set(
           'Authorization',
-          `Bearer ${request.cookies.get(STORAGE_KEYS.ACCESS_TOKEN)?.value}`
+          `Bearer hahahaha ${request.cookies.get(STORAGE_KEYS.ACCESS_TOKEN)?.value}`
         );
       }
-      const response = await next(request, _next);
-
-      return response;
     }
+
+    const response = await next(request, _next);
+    return response;
   };
 };

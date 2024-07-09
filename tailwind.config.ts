@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: '#7f8dff'
+      },
       keyframes: {
         shimmer: {
           '100%': {
@@ -20,7 +23,8 @@ const config: Config = {
   plugins: [
     require('@tailwindcss/forms'),
     require('tailwind-scrollbar-hide'),
-    require('tailwindcss-textshadow')
+    require('tailwindcss-textshadow'),
+    require('tailwindcss-animate')
   ]
 };
 export default config;

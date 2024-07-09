@@ -1,8 +1,10 @@
 const ENDPOINTS = {
-  LOGIN: '/api/login',
-  REGISTER: '/api/register',
-  REFRESH_TOKEN: '/api/refresh-token',
-  PROFILE: '/api/me'
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/users',
+  REFRESH_TOKEN: '/api/auth/refresh',
+  PROFILE: '/api/auth/me',
+  LOGOUT: '/api/auth/logout',
+  RESET_PASSWORD: '/api/auth/reset-password'
 };
 
 export default ENDPOINTS;

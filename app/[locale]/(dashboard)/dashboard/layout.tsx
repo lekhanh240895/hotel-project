@@ -7,5 +7,7 @@ export default async function Layout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
+  const history = [];
+
   return <DashboardProvider>{children}</DashboardProvider>;
 }

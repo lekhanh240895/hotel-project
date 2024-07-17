@@ -1,4 +1,5 @@
 import { DashboardProvider } from '@/app/context/DashboardPageContext';
+import { AI } from '@/app/lib/chat/actions';
 
 export default async function Layout({
   children,
@@ -7,5 +8,11 @@ export default async function Layout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  return <DashboardProvider>{children}</DashboardProvider>;
+  const history = [];
+
+  return (
+    <AI initialUIState={[]}>
+      <DashboardProvider>{children}</DashboardProvider>
+    </AI>
+  );
 }

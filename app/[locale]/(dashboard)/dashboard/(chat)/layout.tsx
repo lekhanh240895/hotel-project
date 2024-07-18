@@ -1,6 +1,5 @@
 import BackButton from '@/app/components/BackButton';
 import Header from '@/app/components/Header';
-import Sidebar from '@/app/components/Sidebar';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {

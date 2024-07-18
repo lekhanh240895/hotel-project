@@ -4,7 +4,6 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { XCircleIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import { registerSchema } from '@/app/lib/yup-schema';
 import { useConfirmRedirectIfDirty } from '@/app/lib/hooks/useConfirmRedirectIfDirty';
@@ -16,8 +15,11 @@ import Link from 'next/link';
 import { LIST_ROUTER } from '@/app/lib/constants/common';
 import { passwordStrength } from 'check-password-strength';
 import PasswordStrength from '../PasswordStrength';
-import { requestRegister } from '@/app/lib/services/auth';
 import { toast } from 'react-toastify';
+import { useFormState, useFormStatus } from 'react-dom';
+import { signup } from '@/app/[locale]/(auth)/register/actions';
+import { getMessageFromCode } from '@/app/lib/utils';
+import { LoadingIcon } from '../../LoadingIcon';
 
 export type RegisterFormData = {
   full_name: string;
@@ -28,19 +30,10 @@ export type RegisterFormData = {
 };
 
 function RegisterForm() {
-  const { t, i18n } = useTranslation();
-  const [error, setError] = useState('');
+  const { t } = useTranslation();
   const router = useRouter();
-  const locale = i18n.language;
   const [passStrength, setPassStrength] = useState(0);
-
-  const {
-    handleSubmit,
-    reset,
-    control,
-    setError: setHookFormError,
-    formState: { isSubmitting, errors, isDirty }
-  } = useForm<RegisterFormData>({
+  const { control } = useForm<RegisterFormData>({
     defaultValues: {
       full_name: '',
       email: '',
@@ -49,6 +42,12 @@ function RegisterForm() {
       terms_and_policy_checked: false
     },
     resolver: yupResolver(registerSchema(t))
+  });
+
+  const email = useWatch({
+    control,
+    name: 'email',
+    defaultValue: ''
   });
 
   const password = useWatch({
@@ -61,105 +60,50 @@ function RegisterForm() {
     setPassStrength(passwordStrength(password).id);
   }, [password]);
 
-  useConfirmRedirectIfDirty(isDirty);
+  const [result, dispatch] = useFormState(signup, undefined);
 
-  const onSubmit = async (data: RegisterFormData) => {
-    if (!data.terms_and_policy_checked) return;
-
-    await requestRegister(data);
-    reset();
-
-    toast.success(t('register:register_success'), {
-      className: 'bg-green-500',
-      autoClose: 1000
-    });
-
-    router.push(`${LIST_ROUTER.EMAIL_VERIFICATION}?email=${data.email}`);
-  };
-
+  useEffect(() => {
+    if (result) {
+      if (result.type === 'error') {
+        toast.error(getMessageFromCode(result.resultCode));
+      } else {
+        toast.success(getMessageFromCode(result.resultCode));
+        router.push(`${LIST_ROUTER.EMAIL_VERIFICATION}?email=${email}`);
+        router.refresh();
+      }
+    }
+  }, [email, result, router]);
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form action={dispatch}>
         <div className="flex flex-col flex-wrap gap-5 p-4">
-          {error && (
-            <div className="flex flex-wrap items-center justify-center gap-4 self-center bg-[#f92d6a0d] px-4 py-2 text-red-500">
-              <XCircleIcon className="h-12 w-12 flex-shrink-0 text-red-500" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          <Controller
-            control={control}
-            name="full_name"
-            render={({ field: { value, onChange } }) => (
-              <InputLabel
-                label={t('name_field').toUpperCase()}
-                error={errors?.full_name}
-                value={value}
-                onChange={onChange}
-              />
-            )}
-          />
-
-          <Controller
-            control={control}
+          <InputLabel label={t('name_field').toUpperCase()} name="full_name" />
+          <InputLabel
+            label={t('email_field').toUpperCase()}
             name="email"
-            render={({ field: { value, onChange } }) => (
-              <InputLabel
-                label={t('email_field')}
-                error={errors?.email}
-                value={value}
-                onChange={onChange}
-              />
-            )}
+            type="email"
           />
-
-          <Controller
-            control={control}
+          <InputLabel
+            label={t('password_field').toUpperCase()}
             name="password"
-            render={({ field: { value, onChange } }) => (
-              <InputLabel
-                label={t('password_field').toUpperCase()}
-                error={errors?.password}
-                value={value}
-                onChange={onChange}
-                type="password"
-              />
-            )}
+            type="password"
+          />
+          <InputLabel
+            label={t('confirm_password_field').toUpperCase()}
+            name="confirm_password"
+            type="password"
           />
 
           {password && <PasswordStrength passStrength={passStrength} />}
 
-          <Controller
-            control={control}
-            name="confirm_password"
-            render={({ field: { value, onChange } }) => (
-              <InputLabel
-                label={t('confirm_password_field').toUpperCase()}
-                error={errors?.confirm_password}
-                value={value}
-                onChange={onChange}
-                type="password"
-              />
-            )}
-          />
-
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <Controller
-                name="terms_and_policy_checked"
-                control={control}
-                defaultValue={false}
-                render={({ field }) => (
-                  <Input
-                    type="checkbox"
-                    id="terms_and_policy_checked"
-                    className="form-checkbox h-4 w-4 border-gray-300 bg-gray-100 p-1 text-blue-600 focus:ring-blue-500"
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
-                )}
+              <Input
+                type="checkbox"
+                id="terms_and_policy_checked"
+                className="form-checkbox h-4 w-4 border-gray-300 bg-gray-100 p-1 text-blue-600 focus:ring-blue-500"
               />
+
               <Label
                 htmlFor="terms_and_policy_checked"
                 className="order-2 mb-0 text-base text-gray-900 dark:text-white"
@@ -184,21 +128,10 @@ function RegisterForm() {
                 </Trans>
               </Label>
             </div>
-            <p className="text-sm text-red-500">
-              {errors?.terms_and_policy_checked?.message}
-            </p>
           </div>
 
           <div className="mt-5 flex justify-center">
-            <Button
-              variant={'default'}
-              type="submit"
-              className="w-full"
-              disabled={isSubmitting}
-              size={'lg'}
-            >
-              {t('register:register_title')}
-            </Button>
+            <SignupButton />
           </div>
         </div>
       </form>
@@ -216,3 +149,21 @@ function RegisterForm() {
 }
 
 export default RegisterForm;
+
+function SignupButton() {
+  const { pending } = useFormStatus();
+  const { t } = useTranslation();
+
+  return (
+    <Button
+      className="w-full"
+      variant={'default'}
+      type="submit"
+      size={'lg'}
+      disabled={pending}
+    >
+      {pending && <LoadingIcon />}
+      {t('register:register_title')}
+    </Button>
+  );
+}

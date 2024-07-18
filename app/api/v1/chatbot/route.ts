@@ -29,7 +29,6 @@ export async function POST(req: Request) {
     }
   };
   const text = await g4f.chatCompletion(messages, options);
-  console.log(text);
 
   return Response.json({ text });
 }

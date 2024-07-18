@@ -1,39 +1,33 @@
 'use client';
 
-import { useActions, useUIState } from 'ai/rsc';
-import { AI } from './actions';
+import { useState } from 'react';
+import { readStreamableValue } from 'ai/rsc';
+import { generate } from '@/app/lib/chat/actions';
 
-export default function Page() {
-  const { sendMessage } = useActions<typeof AI>();
-  const [messages, setMessages] = useUIState();
+// Force the page to be dynamic and allow streaming responses up to 30 seconds
+export const dynamic = 'force-dynamic';
+export const maxDuration = 30;
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    setMessages([
-      ...messages,
-      { id: Date.now(), role: 'user', display: event.target.message.value }
-    ]);
-
-    const response = await sendMessage(event.target.message.value);
-
-    setMessages([
-      ...messages,
-      { id: Date.now(), role: 'assistant', display: response }
-    ]);
-  };
+export default function Home() {
+  const [generation, setGeneration] = useState<string>('');
 
   return (
-    <>
-      <ul>
-        {messages.map((message) => (
-          <li key={message.id}>{message.display}</li>
-        ))}
-      </ul>
-      <form onSubmit={handleSubmit}>
-        <input type="text" name="message" />
-        <button type="submit">Send</button>
-      </form>
-    </>
+    <div>
+      <button
+        onClick={async () => {
+          const { output } = await generate('Why is the sky blue?');
+
+          for await (const delta of readStreamableValue(output)) {
+            setGeneration(
+              (currentGeneration) => `${currentGeneration}${delta}`
+            );
+          }
+        }}
+      >
+        Ask
+      </button>
+
+      <div>{generation}</div>
+    </div>
   );
 }

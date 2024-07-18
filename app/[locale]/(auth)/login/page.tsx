@@ -31,9 +31,6 @@ export async function generateMetadata({
 
 export default async function Login({ params: { locale } }: Props) {
   const { t, resources } = await initTranslations(locale, i18nNamespaces);
-  const isAuthenticated = cookies().get(STORAGE_KEYS.IS_AUTHENTICATED);
-
-  if (isAuthenticated) redirect('/dashboard');
   return (
     <TranslationsProvider
       locale={locale}

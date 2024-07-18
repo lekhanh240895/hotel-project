@@ -1,0 +1,99 @@
+[
+  {
+    "userId": "6697e6f9c2f3b55c6abdc07d",
+    "createdAt": "2024-07-17T16:55:06.870Z",
+    "messages": [
+      { "id": "LCRqiRn", "role": "user", "content": "\n\nlist hotels" },
+      {
+        "id": "7ylXegh",
+        "role": "assistant",
+        "content": "Here's a list of hotels for you to choose from. Select one to proceed to payment.",
+        "display": { "name": "showHotels", "props": {} }
+      }
+    ],
+    "path": "/chat/QRu1bUj",
+    "id": "QRu1bUj",
+    "title": "\n\nlist hotels"
+  },
+  {
+    "createdAt": "2024-07-17T16:48:30.312Z",
+    "messages": [
+      {
+        "id": "9I7SRvq",
+        "role": "user",
+        "content": "\n\nList flights flying from San Francisco to Rome today"
+      },
+      {
+        "id": "knwM7Gs",
+        "role": "assistant",
+        "content": "Here's a list of flights for you. Choose one and we can proceed to pick a seat.",
+        "display": {
+          "name": "showFlights",
+          "props": {
+            "summary": {
+              "departingCity": "San Francisco",
+              "arrivalCity": "Rome",
+              "departingAirport": "SFO",
+              "arrivalAirport": "FCO",
+              "date": "17 July, 2024"
+            }
+          }
+        }
+      }
+    ],
+    "path": "/chat/VVqXq8y",
+    "id": "VVqXq8y",
+    "title": "\n\nList flights flying from San Francisco to Rome today",
+    "userId": "6697e6f9c2f3b55c6abdc07d"
+  },
+  {
+    "userId": "6697e6f9c2f3b55c6abdc07d",
+    "createdAt": "2024-07-17T16:48:08.213Z",
+    "messages": [
+      {
+        "id": "yxIsRn0",
+        "role": "user",
+        "content": "\n\nWhat is the status of flight BA142?"
+      },
+      {
+        "id": "5qv47cC",
+        "role": "assistant",
+        "content": "The flight status of BA142 is as follows:\n                Departing: San Francisco at 10:00 AM from SFO (SFO)\n                "
+      }
+    ],
+    "path": "/chat/I0MtXTn",
+    "id": "I0MtXTn",
+    "title": "\n\nWhat is the status of flight BA142?"
+  },
+  {
+    "createdAt": "2024-07-17T16:48:05.154Z",
+    "messages": [
+      {
+        "id": "K7H2NHa",
+        "role": "user",
+        "content": "\n\nList flights flying from San Francisco to Rome today"
+      },
+      {
+        "id": "RTE7PiS",
+        "role": "assistant",
+        "content": "Here's a list of flights for you. Choose one and we can proceed to pick a seat.",
+        "display": {
+          "name": "showFlights",
+          "props": {
+            "summary": {
+              "departingCity": "San Francisco",
+              "arrivalCity": "Rome",
+              "departingAirport": "SFO",
+              "arrivalAirport": "FCO",
+              "date": "17 July, 2024"
+            }
+          }
+        }
+      }
+    ],
+    "path": "/chat/KTJjIGd",
+    "id": "KTJjIGd",
+    "title": "\n\nList flights flying from San Francisco to Rome today",
+    "userId": "6697e6f9c2f3b55c6abdc07d"
+  }
+]

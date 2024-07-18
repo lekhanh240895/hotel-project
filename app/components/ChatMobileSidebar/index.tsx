@@ -33,7 +33,6 @@ export default function ChatMobileSidebar({
           className="h-10 w-10 p-2 text-primary"
           onClick={() => {
             setIsChatMobileSidebarOpen(false);
-            console.log('clicked');
           }}
         />
         <Logo className={cn('rounded')} />

@@ -1,11 +1,14 @@
 import Charts from '@/app/components/Charts';
 import { Button } from '@/app/components/ui/button';
+import { auth } from '@/auth';
 import {
   CalendarDaysIcon,
   ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 
 export default async function Dashboard() {
+  const session = await auth();
+  console.log({ session });
   return (
     <div className="p-4 md:p-10">
       <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">

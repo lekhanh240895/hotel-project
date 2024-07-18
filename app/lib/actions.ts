@@ -8,25 +8,26 @@ import {
   requestRefresh
 } from './services/auth';
 import { COOKIE_CONFIG, STORAGE_KEYS } from './constants/common';
+import { post } from './request';
+import ENDPOINTS from './endpoints';
 
 async function login(payload: any) {
-  const res: {
-    data: {
-      access_token: string;
-      refresh_token: string;
-    };
-    error: CustomError;
-  } = await requestLogin(payload);
+  const res = await post(ENDPOINTS.LOGIN, {
+    body: payload,
+    cache: 'no-cache'
+  });
 
-  if (res.data?.access_token) {
+  const { data } = await res.json();
+
+  if (data?.access_token) {
     cookies().set({
       name: STORAGE_KEYS.ACCESS_TOKEN,
-      value: res.data.access_token,
+      value: data.access_token,
       ...COOKIE_CONFIG
     });
     cookies().set({
       name: STORAGE_KEYS.REFRESH_TOKEN,
-      value: res.data.refresh_token,
+      value: data.refresh_token,
       ...COOKIE_CONFIG
     });
     cookies().set({
@@ -64,12 +65,12 @@ async function logout() {
   return res;
 }
 
-async function getMe() {
+async function getMe(token: string) {
   const res: {
-    data: User;
+    data: IUser;
     error: CustomError;
   } = await requestGetMe({
-    Authorization: `Bearer ${cookies().get(STORAGE_KEYS.ACCESS_TOKEN)?.value}`
+    Authorization: `Bearer ${token}`
   });
 
   return res;

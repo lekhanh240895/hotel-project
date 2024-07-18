@@ -28,7 +28,6 @@ export async function generateMetadata({
 
 export default async function Login({ params: { locale } }: Props) {
   const { t, resources } = await initTranslations(locale, i18nNamespaces);
-
   return (
     <TranslationsProvider
       locale={locale}

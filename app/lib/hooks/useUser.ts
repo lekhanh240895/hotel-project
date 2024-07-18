@@ -5,7 +5,7 @@ import ENDPOINTS from '../endpoints';
 import { getMe } from '../actions';
 import useSWRImmutable from 'swr/immutable';
 
-const fetcher: Fetcher<User, string> = () => getMe().then((res) => res.data);
+const fetcher: Fetcher<IUser, string> = () => getMe().then((res) => res.data);
 
 export const useUser = () => {
   const { data, error, isLoading } = useSWRImmutable(

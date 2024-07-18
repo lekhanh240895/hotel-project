@@ -3,7 +3,7 @@ import { cn } from '@/app/lib/utils/common';
 export const LoadingIcon = ({ className }: { className?: string }) => {
   return (
     <svg
-      className={cn('animate-spin', className)}
+      className={cn('mr-2 h-3 w-3 animate-spin', className)}
       aria-hidden="true"
       role="status"
       viewBox="0 0 100 101"

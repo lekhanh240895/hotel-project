@@ -11,4 +11,4 @@ const RegisterTokensSchema = new Schema(
 );
 
 export default models.Register_Token ||
-  model<RegisterToken>('Register_Token', RegisterTokensSchema);
+  model<IRegisterToken>('Register_Token', RegisterTokensSchema);

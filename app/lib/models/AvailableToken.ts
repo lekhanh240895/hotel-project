@@ -11,4 +11,4 @@ const AvailableTokensSchema = new Schema(
 );
 
 export default models.Available_Token ||
-  model<AvailableToken>('Available_Token', AvailableTokensSchema);
+  model<IAvailableToken>('Available_Token', AvailableTokensSchema);

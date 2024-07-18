@@ -31,4 +31,4 @@ const MessageSchema = new Schema(
   { timestamps: true }
 );
 
-export default models.Message || model<Message>('Message', MessageSchema);
+export default models.Message || model<IMessage>('Message', MessageSchema);

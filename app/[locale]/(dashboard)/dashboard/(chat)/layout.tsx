@@ -1,9 +1,11 @@
 import BackButton from '@/app/components/BackButton';
 import ChatSidebar from '@/app/components/ChatSidebar';
 import Header from '@/app/components/Header';
-import { getMe } from '@/app/lib/actions';
+import { LIST_ROUTER } from '@/app/lib/constants/common';
 import { getChats } from '@/app/lib/services/chat';
+import { auth } from '@/auth';
 import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: {
@@ -19,8 +21,13 @@ export default async function Layout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const res = await getMe();
-  const chats = await getChats(res.data?._id);
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect(`${LIST_ROUTER.LOGIN}`);
+  }
+
+  const chats = await getChats(session?.user?.id);
   return (
     <main>
       <div className="relative mx-auto w-full bg-gray-200 transition-all">

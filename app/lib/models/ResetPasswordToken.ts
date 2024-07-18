@@ -11,4 +11,4 @@ const ResetPasswordTokenSchema = new Schema(
 );
 
 export default models.Reset_Password_Token ||
-  model<ResetPasswordToken>('Reset_Password_Token', ResetPasswordTokenSchema);
+  model<IResetPasswordToken>('Reset_Password_Token', ResetPasswordTokenSchema);

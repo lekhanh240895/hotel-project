@@ -1,9 +1,9 @@
 import { stackMiddlewares } from './middlewares/stackMiddlewares';
-import { withAuthorization } from './middlewares/withAuthorization';
+import { withAuth } from './middlewares/withAuth';
 import { withHeaders } from './middlewares/withHeaders';
 import { withI18n } from './middlewares/withI18n';
 
-export default stackMiddlewares([withAuthorization, withHeaders, withI18n]);
+export default stackMiddlewares([withHeaders, withAuth, withI18n]);
 
 // applies this middleware only to files in the app directory
 export const config = {

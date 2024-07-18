@@ -4,7 +4,7 @@ interface Base {
   updatedAt: string;
 }
 
-interface User extends Base {
+interface IUser extends Base {
   full_name: string;
   image: string;
   email: string;
@@ -13,17 +13,17 @@ interface User extends Base {
   chatIds: string[];
 }
 
-interface AvailableToken extends Base {
+interface IAvailableToken extends Base {
   user: string;
   refresh_token: string;
 }
 
-interface RegisterToken extends Base {
+interface IRegisterToken extends Base {
   user: string;
   register_token: string;
 }
 
-interface ResetPasswordToken extends Base {
+interface IResetPasswordToken extends Base {
   user: string;
   reset_password_token: string;
 }

@@ -22,7 +22,7 @@ export async function GET() {
     return handleError(error, 401);
   }
   const userId = decoded.userId;
-  const user = await User.findById(userId);
+  const user = await User.findById(userId).select('-password');
 
   if (!user) {
     const error = ApiError.fromNoutfound();

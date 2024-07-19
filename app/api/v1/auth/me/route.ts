@@ -22,8 +22,12 @@ export async function GET() {
     return handleError(error, 401);
   }
   const userId = decoded.userId;
-
   const user = await User.findById(userId);
+
+  if (!user) {
+    const error = ApiError.fromNoutfound();
+    return handleError(error, 404);
+  }
 
   return Response.json({
     status_code: 200,

@@ -42,7 +42,7 @@ export default async function ResetPassword({
   const { token } = searchParams;
 
   if (!token) {
-    redirect('/login');
+    redirect(LIST_ROUTER.LOGIN);
   }
 
   const isTokenValid = verifyToken(token, 'reset');

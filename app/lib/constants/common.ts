@@ -39,7 +39,9 @@ const LIST_ROUTER = {
   POLICY: '/privacy-policy',
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
-  HOTEL: '/dashboard/hotel'
+  HOTEL: '/dashboard/hotel',
+  CHAT: '/dashboard/chat',
+  CHATBOT: '/dashboard/chatbot'
 };
 
 const MAILTRAP = {
@@ -49,11 +51,11 @@ const MAILTRAP = {
   PASSWORD: process.env.MAILTRAP_PASSWORD
 };
 
-const USER_TOKEN_REQUIRED_FOR_ENDPOINTS = [
-  ENDPOINTS.PROFILE,
-  ENDPOINTS.LOGOUT,
-  ENDPOINTS.LOGIN
-];
+const USER_TOKEN_REQUIRED_FOR_ENDPOINTS = [ENDPOINTS.PROFILE, ENDPOINTS.LOGOUT];
+
+const LOCAL_STORAGE_KEY = {
+  SIDEBAR: 'sidebar'
+};
 
 export {
   APP_URL,
@@ -61,5 +63,6 @@ export {
   COOKIE_CONFIG,
   LIST_ROUTER,
   USER_TOKEN_REQUIRED_FOR_ENDPOINTS,
-  MAILTRAP
+  MAILTRAP,
+  LOCAL_STORAGE_KEY
 };

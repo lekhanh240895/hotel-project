@@ -3,11 +3,9 @@
 import { useUser } from '@/app/lib/hooks/useUser';
 import { useForm } from 'react-hook-form';
 import { useEffect } from 'react';
-import ChatSidebar from '@/app/components/ChatSidebar';
 import ChatContent from '@/app/components/ChatContent';
 import ChatForm from '@/app/components/ChatForm';
 import ChatHeader from '@/app/components/ChatHeader';
-import ChatMobileSidebar from '@/app/components/ChatMobileSidebar';
 import { useActions, useAIState, useUIState } from 'ai/rsc';
 import { useLocalStorage } from '@/app/lib/hooks/use-local-storage';
 import { Message } from '@/app/lib/types/chat';
@@ -15,8 +13,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { AI } from '@/app/lib/chat/actions';
 import { nanoid } from '@/app/lib/utils';
 import { UserMessage } from '../message';
-import { ButtonScrollToBottom } from '../button-scroll-to-bottom';
+import ButtonScrollToBottom from '../button-scroll-to-bottom';
 import { useScrollAnchor } from '@/app/lib/hooks/use-scroll-anchor';
+import { LIST_ROUTER } from '@/app/lib/constants/common';
+import { cn } from '@/app/lib/utils/common';
+import { useDashboardContext } from '@/app/context/DashboardContext';
 
 export interface ChatProps extends React.ComponentProps<'div'> {
   initialMessages?: Message[];
@@ -26,7 +27,7 @@ export interface ChatProps extends React.ComponentProps<'div'> {
 type FormData = {
   input: string;
 };
-export default function Chat({ id }: ChatProps) {
+export default function Chat({ id, initialMessages }: ChatProps) {
   const { user } = useUser();
   const router = useRouter();
   const path = usePathname();
@@ -36,16 +37,20 @@ export default function Chat({ id }: ChatProps) {
   const [_, setNewChatId] = useLocalStorage('newChatId', id);
   const { submitUserMessage } = useActions();
 
-  const { control, handleSubmit } = useForm<FormData>({
+  const { control, handleSubmit, reset } = useForm<FormData>({
     defaultValues: {
       input: ''
     }
   });
 
+  const { isSidebarOpen } = useDashboardContext();
+  const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
+    useScrollAnchor();
+
   useEffect(() => {
     if (user) {
-      if (!path.includes('chat') && messages.length === 1) {
-        window.history.replaceState({}, '', `/chat/${id}`);
+      if (path.includes('chatbot') && messages.length === 1) {
+        window.history.replaceState({}, '', `${LIST_ROUTER.CHAT}/${id}`);
       }
     }
   }, [id, path, user, messages]);
@@ -73,47 +78,33 @@ export default function Chat({ id }: ChatProps) {
     const responseMessage = await submitUserMessage(data.input);
 
     setMessages((currentMessages) => [...currentMessages, responseMessage]);
-  };
 
-  const { messagesRef, scrollRef, visibilityRef, isAtBottom, scrollToBottom } =
-    useScrollAnchor();
+    reset();
+  };
 
   return (
     <div
-      className="flex h-screen max-h-screen w-full bg-background pt-[69px]"
-      ref={scrollRef}
+      className={cn(
+        'flex flex-1 flex-col',
+        isSidebarOpen ? 'md:pl-[300px]' : 'md:pl-0'
+      )}
     >
-      {/* <ChatContent current={current} /> */}
-      {/* <ChatSidebar messages={messages} isShared={false} />
+      <ChatHeader />
 
-      <ChatMobileSidebar
-        conversations={conversations}
-        current={current}
-        setCurrent={setCurrent}
-      />
-     */}
-
-      <div className="flex flex-1 flex-col">
-        <ChatHeader />
-
-        <div
-          className="relative flex-1 overflow-y-auto p-6 scrollbar-hide"
-          ref={scrollRef}
-        >
-          <div ref={messagesRef}>
-            <ChatContent messages={messages} />
-          </div>
-
-          <ButtonScrollToBottom
-            isAtBottom={isAtBottom}
-            scrollToBottom={scrollToBottom}
-          />
-
-          <div className="h-px w-full" ref={visibilityRef} />
+      <div className="relative flex-1 overflow-y-auto p-6" ref={scrollRef}>
+        <div ref={messagesRef} className="mx-auto max-w-7xl">
+          <ChatContent messages={messages} />
         </div>
 
-        <ChatForm onSubmit={handleSubmit(onSubmit)} control={control} />
+        <ButtonScrollToBottom
+          isAtBottom={isAtBottom}
+          scrollToBottom={scrollToBottom}
+        />
+
+        <div className="h-px w-full" ref={visibilityRef} />
       </div>
+
+      <ChatForm onSubmit={handleSubmit(onSubmit)} control={control} />
     </div>
   );
 }

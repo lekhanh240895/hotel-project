@@ -54,7 +54,8 @@ const config: Config = {
         }
       },
       borderRadius: {
-        messageBorder: '16px 16px 2px 16px'
+        userMessageBorder: '16px 16px 2px 16px',
+        botMessageBorder: '2px 16px 16px 16px'
       }
     }
   },

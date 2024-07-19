@@ -10,6 +10,7 @@ interface User extends Base {
   email: string;
   username: string;
   role: string;
+  chatIds: string[];
 }
 
 interface AvailableToken extends Base {
@@ -26,13 +27,3 @@ interface ResetPasswordToken extends Base {
   user: string;
   reset_password_token: string;
 }
-
-// interface Message extends Base {
-//   role: string;
-//   content: string;
-//   sender?: string;
-// }
-
-// interface Conversation extends Base {
-//   messages: Message[];
-// }

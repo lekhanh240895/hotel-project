@@ -1,5 +1,4 @@
 import Header from '@/app/components/Header';
-import MobileSidebar from '@/app/components/MobileSidebar';
 import Sidebar from '@/app/components/Sidebar';
 import { Metadata } from 'next';
 
@@ -19,8 +18,6 @@ export default async function Layout({
 }) {
   return (
     <main>
-      <MobileSidebar />
-
       <Sidebar />
 
       <div className="wrap relative mx-auto w-full bg-gray-200 transition-all md:pl-[68px]">

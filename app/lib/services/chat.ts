@@ -8,17 +8,20 @@ import { Chat } from '../types/chat';
 import { mongooseConnect } from '../mongoose';
 import ChatModel from '../models/Chat';
 import { getMe } from '../actions';
+import { LIST_ROUTER } from '../constants/common';
 
-export async function getChats(userId?: string | null) {
+export async function getChats(userId: string) {
   await mongooseConnect();
 
   if (!userId) {
     return [];
   }
   try {
-    const chats = await ChatModel.find({});
+    const chats: Chat[] = await ChatModel.find({
+      userId
+    });
 
-    return chats as Chat[];
+    return JSON.parse(JSON.stringify(chats));
   } catch (error) {
     return [];
   }
@@ -26,12 +29,15 @@ export async function getChats(userId?: string | null) {
 
 export async function getChat(id: string, userId: string) {
   await mongooseConnect();
-  const chat = await ChatModel.findOne({ id });
-  if (!chat || (userId && chat.userId !== userId)) {
+  const chat = await ChatModel.findOne({
+    $and: [{ id }, { userId }]
+  });
+
+  if (!chat) {
     return null;
   }
 
-  return chat as Chat;
+  return JSON.parse(JSON.stringify(chat));
 }
 
 export async function removeChat({ id, path }: { id: string; path: string }) {
@@ -54,7 +60,7 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
 
   await ChatModel.findByIdAndDelete(id);
 
-  revalidatePath('/');
+  revalidatePath(LIST_ROUTER.CHATBOT);
   return revalidatePath(path);
 }
 
@@ -71,7 +77,7 @@ export async function clearChats() {
   const chats = await ChatModel.find({ userId: res.data._id });
 
   if (!chats.length) {
-    return redirect('/');
+    return redirect(LIST_ROUTER.CHATBOT);
   }
 
   const chatIds = chats.map((chat) => chat.id);
@@ -82,8 +88,8 @@ export async function clearChats() {
     { $pull: { chatIds: { $in: chatIds } } }
   ).exec();
 
-  revalidatePath('/');
-  return redirect('/');
+  revalidatePath(LIST_ROUTER.CHATBOT);
+  return redirect(LIST_ROUTER.CHATBOT);
 }
 
 export async function getSharedChat(id: string) {
@@ -119,31 +125,35 @@ export async function shareChat(id: string) {
 
   await chat.save();
 
-  return chat;
+  return JSON.parse(JSON.stringify(chat));
 }
 
 export async function saveChat(chat: Chat) {
   await mongooseConnect();
   const res = await getMe();
-  if (res && res.data) {
+
+  if (res.data) {
     const isExist = await ChatModel.findOne({ id: chat.id });
 
-    let updatedChat;
+    let updatedChat: Chat | null;
 
     if (isExist) {
       updatedChat = await ChatModel.findOneAndUpdate({ id: chat.id }, chat, {
         new: true
       });
+    } else {
+      updatedChat = await ChatModel.create(chat);
     }
-
-    updatedChat = await ChatModel.create(chat);
 
     await User.findOneAndUpdate(
       { _id: res.data._id },
-      { $addToSet: { chatIds: updatedChat.id } }
+      { $addToSet: { chatIds: updatedChat?.id } },
+      {
+        new: true
+      }
     );
 
-    return updatedChat;
+    return JSON.parse(JSON.stringify(chat));
   } else {
     return;
   }

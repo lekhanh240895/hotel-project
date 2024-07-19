@@ -13,13 +13,14 @@ import { Avatar, AvatarFallback } from '../ui/avatar';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { ChatMessageActions } from '../chat-message-actions';
 import Markdown from 'react-markdown';
+import { Card } from '../ui/card';
 
 export function UserMessage({ children }: { children: React.ReactNode }) {
   return (
     <div className="group relative flex items-start justify-end">
       <div
         className={cn(
-          'flex max-w-sm flex-row-reverse whitespace-pre-line break-words rounded-messageBorder bg-gray-200 px-4 py-2 text-foreground'
+          'rounded-userMessageBorder flex max-w-xs flex-row-reverse whitespace-pre-line break-words bg-[#e3fcf7] px-4 py-2 text-foreground shadow-md sm:max-w-sm md:max-w-2xl'
         )}
       >
         {children}
@@ -44,10 +45,10 @@ export function BotMessage({
           <UserIcon />
         </AvatarFallback>
       </Avatar>
-      <div className="ml-4 grid gap-1">
+      <div className="ml-4 grid gap-2">
         <div
           className={cn(
-            'flex max-w-sm whitespace-pre-line break-words text-foreground'
+            'rounded-botMessageBorder flex max-w-xs whitespace-pre-line break-words bg-gray-100 px-4 py-2 text-foreground shadow-md sm:max-w-sm md:max-w-2xl'
           )}
         >
           <Markdown
@@ -93,7 +94,7 @@ export function BotCard({
   showAvatar?: boolean;
 }) {
   return (
-    <div className="group relative flex items-start">
+    <Card className="group relative flex items-start">
       <div
         className={cn(
           'flex size-[25px] shrink-0 select-none items-center justify-center rounded-lg border bg-background shadow-sm',
@@ -103,7 +104,7 @@ export function BotCard({
         <img className="size-6" src="/images/gemini.png" alt="gemini logo" />
       </div>
       <div className="ml-4 flex-1 pl-2">{children}</div>
-    </div>
+    </Card>
   );
 }
 

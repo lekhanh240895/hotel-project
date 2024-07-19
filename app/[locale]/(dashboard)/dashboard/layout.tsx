@@ -1,4 +1,4 @@
-import { DashboardProvider } from '@/app/context/DashboardPageContext';
+import { DashboardProvider } from '@/app/context/DashboardContext';
 
 export default async function Layout({
   children,

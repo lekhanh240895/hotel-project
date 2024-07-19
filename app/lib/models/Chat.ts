@@ -22,8 +22,7 @@ const ChatSchema = new Schema(
         name: String,
         display: {
           name: {
-            type: String,
-            required: true
+            type: String
           },
           props: {
             type: Map,

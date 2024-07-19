@@ -1,6 +1,6 @@
-'use server';
+import 'server-only';
 
-import { generateText, streamText } from 'ai';
+import { streamText } from 'ai';
 import {
   createAI,
   createStreamableUI,
@@ -22,11 +22,17 @@ import {
 import { ListHotels } from '@/app/components/hotels/list-hotels';
 import { z } from 'zod';
 import { format } from 'date-fns';
+import { LIST_ROUTER } from '../constants/common';
 
 export async function submitUserMessage(content: string) {
   'use server';
 
   const aiState = getMutableAIState();
+  const interactions = aiState.get().interactions;
+  const formattedContent =
+    interactions.length > 0
+      ? `${interactions.join('\n\n')}\n\n${content}`
+      : content;
 
   aiState.update({
     ...aiState.get(),
@@ -35,7 +41,7 @@ export async function submitUserMessage(content: string) {
       {
         id: nanoid(),
         role: 'user',
-        content: `${aiState.get().interactions.join('\n\n')}\n\n${content}`
+        content: formattedContent
       }
     ]
   });
@@ -53,7 +59,7 @@ export async function submitUserMessage(content: string) {
   (async () => {
     try {
       const result = await streamText({
-        model: google('models/gemini-1.5-flash'),
+        model: google('models/gemini-1.5-pro-latest'),
         temperature: 0,
         tools: {
           listDestinations: {
@@ -71,29 +77,20 @@ export async function submitUserMessage(content: string) {
           showHotels: {
             description: 'Show the UI to choose a hotel for the trip.',
             parameters: z.object({ city: z.string() })
-          },
-          checkoutBooking: {
-            description:
-              'Show the UI to purchase/checkout a flight and hotel booking.',
-            parameters: z.object({ shouldConfirm: z.boolean() })
           }
         },
         system: `\
-    You are a friendly assistant that helps the user with booking flights to destinations that are based on a list of books. You can you give travel recommendations based on the books, and will continue to help the user book a flight to their destination.
+    You are a friendly assistant that helps the user choose destinations that are in Vietnam country for their holiday. 
+    You can you give travel recommendations based on famous places in Vietnam or from user's input, and will continue to help the user select a route for travelling.
 
     The date today is ${format(new Date(), 'd LLLL, yyyy')}.
-    The user's current location is San Francisco, CA, so the departure city will be San Francisco and airport will be San Francisco International Airport (SFO). The user would like to book the flight out on May 12, 2024.
-
-    List United Airlines flights only.
+    The user's current location is in Vietnam. The user would like to find list of famous hotels, restaurants, and famous sight seeings in that travel route to enjoy their holiday.
 
     Here's the flow:
-      1. List holiday destinations based on a collection of books.
-      2. List flights to destination.
-      3. Choose a flight.
-      4. Choose a seat.
-      5. Choose hotel
-      6. Purchase booking.
-      7. Show boarding pass.
+      1. List holiday destinations based on user requirements or your information from famous places.
+      2. List hotels, list restaurants, list famous sight seeings if user requests
+      3. Calculate the quote for each customer if user requests
+      4. Create a tour program table according to the above schedule if user requests
     `,
         messages: [...history]
       });
@@ -194,45 +191,43 @@ export const AI = createAI<AIState, UIState>({
     submitUserMessage
   },
   initialUIState: [],
-  initialAIState: { chatId: nanoid(), interactions: [], messages: [] }
-  // onSetAIState: async ({ state, done }) => {
-  //   'use server';
-  //   console.log({ state, done });
-  //   const res = await getMe();
+  initialAIState: { chatId: nanoid(), interactions: [], messages: [] },
+  onSetAIState: async ({ state, done }) => {
+    'use server';
+    const res = await getMe();
 
-  //   if (res.data) {
-  //     // const { chatId, messages } = state;
-  //     // const userId = res.data._id as string;
-  //     // const path = `/chat/${chatId}`;
-  //     // const title = messages[0].content.substring(0, 100);
-  //     // const chat: Chat = {
-  //     //   id: chatId,
-  //     //   title,
-  //     //   userId,
-  //     //   messages,
-  //     //   path
-  //     // };
-  //     // await saveChat(chat);
-  //   } else {
-  //     return;
-  //   }
-  // },
-  // onGetUIState: async () => {
-  //   'use server';
+    if (res.data) {
+      const { chatId, messages } = state;
+      const userId = res.data._id as string;
+      const path = `${LIST_ROUTER.CHAT}/${chatId}`;
+      const title = messages[0].content.substring(0, 100);
+      const chat: Chat = {
+        id: chatId,
+        title,
+        userId,
+        messages,
+        path
+      };
+      await saveChat(chat);
+    } else {
+      return;
+    }
+  },
+  onGetUIState: async () => {
+    'use server';
 
-  //   const res = await getMe();
+    const res = await getMe();
 
-  //   if (res.data) {
-  //     const aiState = getAIState() as Chat;
-
-  //     if (aiState) {
-  //       const uiState = getUIStateFromAIState(aiState);
-  //       return uiState;
-  //     }
-  //   } else {
-  //     return;
-  //   }
-  // }
+    if (res.data) {
+      const aiState = getAIState() as Chat;
+      if (aiState) {
+        const uiState = getUIStateFromAIState(aiState);
+        return uiState;
+      }
+    } else {
+      return;
+    }
+  }
 });
 
 export const getUIStateFromAIState = (aiState: Chat) => {
@@ -242,9 +237,9 @@ export const getUIStateFromAIState = (aiState: Chat) => {
       id: `${aiState.chatId}-${index}`,
       display:
         message.role === 'assistant' ? (
-          message.display?.name === 'showFlights' ? (
+          message.display?.name === 'showHotels' ? (
             <BotCard>
-              <ListHotels hotels={[]} />
+              <ListHotels />
             </BotCard>
           ) : (
             <BotMessage content={message.content} />

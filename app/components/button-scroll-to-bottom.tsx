@@ -11,7 +11,7 @@ interface ButtonScrollToBottomProps extends ButtonProps {
   scrollToBottom: () => void;
 }
 
-export function ButtonScrollToBottom({
+export default function ButtonScrollToBottom({
   className,
   isAtBottom,
   scrollToBottom,
@@ -22,7 +22,7 @@ export function ButtonScrollToBottom({
       variant="outline"
       size="icon"
       className={cn(
-        'absolute right-4 top-10 z-10 bg-background transition-opacity duration-300 sm:right-8 md:top-2',
+        'fixed bottom-20 right-4 z-10 bg-background transition-opacity duration-300 sm:right-8',
         isAtBottom ? 'opacity-0' : 'opacity-100',
         className
       )}

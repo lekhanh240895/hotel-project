@@ -3,9 +3,6 @@ import React, { Suspense } from 'react';
 import initTranslations from '@/app/i18n';
 import TranslationsProvider from '@/app/components/TranslationsProvider';
 import LoginForm from '@/app/components/auth/LoginForm';
-import { cookies } from 'next/headers';
-import { STORAGE_KEYS } from '@/app/lib/constants/common';
-import { redirect } from 'next/navigation';
 
 type Props = {
   params: {
@@ -31,9 +28,7 @@ export async function generateMetadata({
 
 export default async function Login({ params: { locale } }: Props) {
   const { t, resources } = await initTranslations(locale, i18nNamespaces);
-  const isAuthenticated = cookies().get(STORAGE_KEYS.IS_AUTHENTICATED);
 
-  if (isAuthenticated) redirect('/dashboard');
   return (
     <TranslationsProvider
       locale={locale}

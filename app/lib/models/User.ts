@@ -11,7 +11,12 @@ const UserSchema = new Schema(
     image: { type: String, default: '' },
     password: { type: String, default: '' },
     role: { type: String, default: 'user' },
-    is_verified: { type: Boolean, default: false }
+    is_verified: { type: Boolean, default: false },
+    chatIds: [
+      {
+        type: String
+      }
+    ]
   },
   {
     timestamps: true

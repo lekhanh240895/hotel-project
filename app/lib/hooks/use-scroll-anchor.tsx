@@ -1,3 +1,5 @@
+'use client';
+
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export const useScrollAnchor = () => {
@@ -5,7 +7,7 @@ export const useScrollAnchor = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const visibilityRef = useRef<HTMLDivElement>(null);
 
-  const [isAtBottom, setIsAtBottom] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
 
   const scrollToBottom = useCallback(() => {

@@ -7,12 +7,13 @@ import {
 import { Button } from '@/app/components/ui/button';
 import { MagnifyingGlassIcon, UserIcon } from '@heroicons/react/24/outline';
 import { useUser } from '@/app/lib/hooks/useUser';
+import { useDashboardContext } from '@/app/context/DashboardContext';
 
 export default function ChatHeader() {
   const { user } = useUser();
-
+  const { toggleSidebar } = useDashboardContext();
   return (
-    <div className="sticky top-0 flex items-center justify-between gap-4 border-b bg-background px-6 py-4">
+    <div className="sticky top-0 flex items-center justify-between gap-4 bg-background px-6 py-4 shadow-md">
       <div className="flex items-center gap-2">
         <Avatar className="relative h-8 w-8 border bg-gray-800 text-white">
           <AvatarImage src={user?.image} />
@@ -27,8 +28,12 @@ export default function ChatHeader() {
           <MagnifyingGlassIcon className="h-5 w-5" />
           <span className="sr-only">Search</span>
         </Button>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <MoveHorizontalIcon className="h-5 w-5" />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden rounded-full md:flex"
+        >
+          <MoveHorizontalIcon className="h-5 w-5" onClick={toggleSidebar} />
           <span className="sr-only">More</span>
         </Button>
       </div>

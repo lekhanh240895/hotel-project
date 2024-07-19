@@ -1,8 +1,6 @@
 import { refresh } from '../actions';
 import { USER_TOKEN_REQUIRED_FOR_ENDPOINTS } from '../constants/common';
-import ENDPOINTS from '../endpoints';
 import { FetchArgs, FetchInterceptor } from './fetchInterceptor';
-import { post } from './index';
 
 const cache: {
   isRefreshing: boolean;

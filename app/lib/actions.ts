@@ -83,7 +83,7 @@ async function refresh() {
       refresh_token: string;
     };
     error: CustomError;
-  } = await requestRefresh({ refresh_token }, {});
+  } = await requestRefresh({ refresh_token });
 
   if (res?.error) {
     cookies().set(STORAGE_KEYS.ACCESS_TOKEN, '', {

@@ -17,6 +17,8 @@
   "dependencies": {
     "@ai-sdk/google": "^0.0.27",
     "@ai-sdk/openai": "^0.0.36",
+    "@ai-sdk/provider": "^0.0.14",
+    "@ai-sdk/provider-utils": "^1.0.5",
     "@google/generative-ai": "^0.15.0",
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.4",

@@ -1,6 +1,21 @@
+import { APP_API_KEY } from '../constants/common';
 import ENDPOINTS from '../endpoints';
-import { post, put } from '../request';
+import { get, post, put } from '../request';
 
+async function requestGetUser(params: any, headers = {}) {
+  const res = await get(ENDPOINTS.USERS, {
+    headers: {
+      ...headers,
+      'x-api-key': APP_API_KEY!
+    },
+    params,
+    cache: 'no-cache'
+  });
+
+  if (!res.ok) return new Promise(async (_, rej) => rej(await res.json()));
+
+  return await res.json();
+}
 async function requestResetPassword(payload: any, headers = {}) {
   const res = await post(ENDPOINTS.RESET_PASSWORD, {
     headers: {
@@ -29,4 +44,4 @@ async function requestUpdate(id: string, payload: any, headers = {}) {
   return await res.json();
 }
 
-export { requestResetPassword, requestUpdate };
+export { requestGetUser, requestResetPassword, requestUpdate };

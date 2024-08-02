@@ -22,7 +22,7 @@ export async function generateMetadata({
     return {};
   }
 
-  const chat = await getChat(params.id, session.user._id);
+  const chat = await getChat(params.id, session.user.id);
   return {
     title: chat?.title.toString().slice(0, 50) ?? 'Chat'
   };
@@ -39,7 +39,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
     );
   }
 
-  const userId = session.user._id;
+  const userId = session.user.id;
   const chat = await getChat(params.id, userId);
 
   if (!chat) {

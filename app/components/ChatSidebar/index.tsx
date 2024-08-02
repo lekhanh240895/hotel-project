@@ -14,7 +14,7 @@ interface Props {
 export default function ChatSidebar({ className, session }: Props) {
   const { isSidebarOpen } = useDashboardContext();
   const pathname = usePathname();
-  const { data: chats, isLoading } = useChats(session.user._id, [pathname]);
+  const { data: chats, isLoading } = useChats(session.user.id, [pathname]);
 
   return (
     <nav

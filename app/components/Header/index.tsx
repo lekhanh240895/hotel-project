@@ -7,9 +7,6 @@ import MyMenu from '../MyMenu';
 import Logo from '../Logo';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Suspense } from 'react';
-import ChatMobileSidebar from '../ChatMobileSidebar';
-import { Chat } from '@/app/lib/types/chat';
-import MobileSidebar from '../MobileSidebar';
 import ToggleSidebar from '../ToggleSidebar';
 import { auth } from '@/auth';
 
@@ -28,7 +25,7 @@ async function UserOrLogin() {
             </Avatar>
             <div className="hidden flex-col justify-between md:flex">
               <h1 className="text-sm font-semibold text-primary">
-                Administrator
+                {session.user.role === 'admin' ? 'Administrator' : 'User'}
               </h1>
               <div className="flex items-center gap-4">
                 <h2 className="font-semibold ">{session.user?.full_name}</h2>

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "format": "npx prettier --write .",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev-https": "next dev --experimental-https"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --fix",
@@ -17,6 +18,7 @@
   "dependencies": {
     "@ai-sdk/google": "^0.0.27",
     "@ai-sdk/openai": "^0.0.36",
+    "@auth/mongodb-adapter": "^3.4.2",
     "@google/generative-ai": "^0.15.0",
     "@headlessui/react": "^2.1.2",
     "@heroicons/react": "^2.1.4",
@@ -77,7 +79,7 @@
     "@types/d3": "^7.4.3",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/mapbox__mapbox-gl-geocoder": "^5.0.0",
-    "@types/node": "^20",
+    "@types/node": "^20.14.13",
     "@types/nodemailer": "^6.4.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",

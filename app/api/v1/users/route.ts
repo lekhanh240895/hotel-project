@@ -61,8 +61,8 @@ export async function GET(req: Request) {
       }
     });
   } catch (e) {
-    const error = ApiError.fromNotfound();
-    return handleError(error, 404);
+    const error = ApiError.fromUnexpected();
+    return handleError(error, 500);
   }
 }
 
@@ -73,30 +73,31 @@ export async function POST(req: Request) {
 
   const url = new URL(req.url);
 
-  const { full_name, email, password, confirm_password } = res;
+  const { full_name, email, password, is_verified, grant_type, image } = res;
 
   const lang = headers().get('Accept-Language') || 'en';
   const { t } = await initTranslations(lang, ['common']);
 
-  try {
-    await registerSchema(t).validate(
-      {
-        email,
-        password,
-        confirm_password,
-        full_name
-      },
-      {
-        abortEarly: false
+  if (grant_type !== 'social_login') {
+    try {
+      await registerSchema(t).validate(
+        {
+          email,
+          password,
+          full_name
+        },
+        {
+          abortEarly: false
+        }
+      );
+    } catch (error: any) {
+      if (error instanceof yup.ValidationError) {
+        const apiError = ApiError.fromYupError(error, 'RE-0001');
+        return handleError(apiError, 400);
+      } else {
+        const apiError = ApiError.fromUnexpected();
+        return handleError(apiError, 500);
       }
-    );
-  } catch (error: any) {
-    if (error instanceof yup.ValidationError) {
-      const apiError = ApiError.fromYupError(error, 'RE-0001');
-      return handleError(apiError, 400);
-    } else {
-      const apiError = ApiError.fromUnexpected();
-      return handleError(apiError, 500);
     }
   }
 
@@ -109,39 +110,48 @@ export async function POST(req: Request) {
     return handleError(error, 400);
   }
 
+  let hashPassword;
   const salt = await bcrypt.genSalt(10);
-  const hashPassword = await bcrypt.hash(password, salt);
+
+  if (grant_type !== 'social_login') {
+    hashPassword = await bcrypt.hash(password, salt);
+  } else {
+    const randomString = crypto.randomUUID();
+    hashPassword = await bcrypt.hash(randomString, salt);
+  }
 
   const user = await User.create({
     full_name,
     email,
-    password: hashPassword
+    password: hashPassword,
+    is_verified,
+    image
   });
 
-  const register_token = generateRegisterToken(user.id);
+  if (!user.is_verified) {
+    const register_token = generateRegisterToken(user.id);
 
-  await RegisterToken.create({
-    user: user.id,
-    register_token
-  });
+    await RegisterToken.create({
+      user: user.id,
+      register_token
+    });
 
-  const transporter = nodemailer.createTransport({
-    host: MAILTRAP.HOST,
-    port: Number(MAILTRAP.PORT),
-    auth: {
-      user: MAILTRAP.USER,
-      pass: MAILTRAP.PASSWORD
-    }
-  });
-
-  await transporter.sendMail({
-    from: '"Hotel Project Team" <hotel@administration.com>',
-    to: user.email,
-    subject: 'Account Registration Verification',
-    text: 'Thank you for registering with us! Please use the following link to verify your account:',
-    html: registerMail(url.origin, register_token, user.email)
-  });
-
+    const transporter = nodemailer.createTransport({
+      host: MAILTRAP.HOST,
+      port: Number(MAILTRAP.PORT),
+      auth: {
+        user: MAILTRAP.USER,
+        pass: MAILTRAP.PASSWORD
+      }
+    });
+    await transporter.sendMail({
+      from: '"Hotel Project Team" <hotel@administration.com>',
+      to: user.email,
+      subject: 'Account Registration Verification',
+      text: 'Thank you for registering with us! Please use the following link to verify your account:',
+      html: registerMail(url.origin, register_token, user.email)
+    });
+  }
   return Response.json(
     {
       status_code: 201,
@@ -265,18 +275,6 @@ const registerSchema = (t: TFunction<[string, string], undefined>) => {
 
             return passwordRegex.test(value);
           }
-        ),
-      confirm_password: yup
-        .string()
-        .required(
-          t('error_messages.field_required', {
-            field: t('confirm_password_field')
-          })
-        )
-        .max(255)
-        .oneOf(
-          [yup.ref('password')],
-          t('error_messages.passwords_do_not_match')
         )
     })
     .required();

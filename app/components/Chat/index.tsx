@@ -55,10 +55,16 @@ export default function Chat({
   const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
-    if (messagesRef.current && messages.length) {
+    if (messagesRef.current && aiState.messages?.length) {
       scrollToBottom();
     }
-  }, [isAtBottom, messages, messagesRef, scrollToBottom, visibilityRef]);
+  }, [
+    aiState.messages?.length,
+    isAtBottom,
+    messagesRef,
+    scrollToBottom,
+    visibilityRef
+  ]);
 
   useEffect(() => {
     if (session?.user) {

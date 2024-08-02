@@ -13,6 +13,8 @@ import { authenticate } from '@/app/[locale]/(auth)/login/actions';
 import { LoadingIcon } from '../../LoadingIcon';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { XCircleIcon } from '@heroicons/react/24/outline';
+import { IconFacebook, IconGitHub, IconGoogle } from '../../ui/icons';
+import { socialLogin } from '@/app/lib/services/auth';
 
 export type LoginFormData = {
   email: string;
@@ -88,6 +90,21 @@ function LoginForm() {
           </div>
         </div>
       </form>
+
+      <div className="my-10 mt-6 flex justify-center gap-4">
+        <IconGitHub
+          className="size-8 cursor-pointer"
+          onClick={() => socialLogin('github')}
+        />
+        <IconGoogle
+          className="size-8 cursor-pointer"
+          onClick={() => socialLogin('google')}
+        />
+        <IconFacebook
+          className="size-8 cursor-pointer"
+          onClick={() => socialLogin('facebook')}
+        />
+      </div>
 
       <p className="mt-4 text-center font-semibold">
         <Trans i18nKey="login:sign_up_link">

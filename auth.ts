@@ -1,41 +1,67 @@
 import NextAuth, { CredentialsSignin } from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { authConfig } from './auth.config';
-import { getMe, login } from './app/lib/actions';
-declare module 'next-auth' {
-  /**
-   * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
+import { login } from './app/lib/actions';
+import Google from '@auth/core/providers/google';
+import Facebook from '@auth/core/providers/facebook';
+import Github from '@auth/core/providers/github';
+import { JWT } from 'next-auth/jwt';
+import { requestGetMe } from './app/lib/services/auth';
 
-  interface User extends IUser {
+declare module 'next-auth' {
+  interface User {
+    id?: string;
     access_token: string;
     refresh_token: string;
     expires_in: number;
+    email?: string | null;
+    full_name: string;
+    image?: string | null;
+    username: string;
+    role: string;
+    chatIds: string[];
+    createdAt: string;
+    _id: string;
+    updatedAt: string;
   }
-  interface Session {
-    user: User & {
-      id: string;
-    };
-    access_token: string;
-  }
-}
 
-import { JWT } from 'next-auth/jwt';
-declare module 'next-auth/jwt' {
-  /** Returned by the `jwt` callback and `auth`, when using JWT sessions */
-  interface JWT {
-    /** OpenID ID Token */
-    id: string;
+  interface Session {
     user: {
-      full_name: string;
-      image?: string | null;
-      email?: string | null;
-      username: string;
-      role: string;
-      chatIds: string[];
+      id: string;
       access_token: string;
       refresh_token: string;
       expires_in: number;
+      email?: string | null;
+      full_name: string;
+      image?: string | null;
+      username: string;
+      role: string;
+      chatIds: string[];
+      createdAt: string;
+      _id: string;
+      updatedAt: string;
+    };
+    access_token: string;
+    refresh_token: string;
+  }
+}
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id?: string;
+    user: {
+      id?: string;
+      access_token: string;
+      refresh_token: string;
+      expires_in: number;
+      email?: string | null;
+      full_name: string;
+      image?: string | null;
+      username: string;
+      role: string;
+      chatIds: string[];
+      createdAt: string;
+      _id: string;
+      updatedAt: string;
     };
     access_token: string;
     refresh_token: string;
@@ -48,7 +74,20 @@ class UnverifiedUser extends CredentialsSignin {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  session: { strategy: 'jwt' },
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_ID as string,
+      clientSecret: process.env.GOOGLE_SECRET as string
+    }),
+    Github({
+      clientId: process.env.GITHUB_ID as string,
+      clientSecret: process.env.GITHUB_SECRET as string
+    }),
+    Facebook({
+      clientId: process.env.FACEBOOK_ID as string,
+      clientSecret: process.env.FACEBOOK_SECRET as string
+    }),
     Credentials({
       async authorize(credentials) {
         const res: {
@@ -75,7 +114,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const { access_token, refresh_token, expires_in } = data;
 
-        const { data: user } = await getMe(access_token);
+        const { data: user } = await requestGetMe({
+          Authorization: 'Bearer ' + access_token
+        });
 
         if (!user) {
           return null;
@@ -83,8 +124,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         return {
           ...user,
-          access_token: access_token,
-          refresh_token: refresh_token,
+          access_token,
+          refresh_token,
           expires_in
         };
       }

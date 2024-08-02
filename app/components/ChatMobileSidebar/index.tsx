@@ -13,7 +13,7 @@ interface Props {
 export default function ChatMobileSidebar({ children, session }: Props) {
   const { isMobileSidebarOpen, toggleMobileSidebar } = useDashboardContext();
   const pathname = usePathname();
-  const { data: chats, isLoading } = useChats(session.user._id, [pathname]);
+  const { data: chats, isLoading } = useChats(session.user.id, [pathname]);
 
   return (
     <Sheet open={isMobileSidebarOpen} onOpenChange={toggleMobileSidebar}>

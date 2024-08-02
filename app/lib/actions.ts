@@ -1,9 +1,9 @@
 'use server';
 
-import { requestGetMe } from './services/auth';
+import { requestGetMe, requestLogout } from './services/auth';
 import ENDPOINTS from './endpoints';
-import { post } from './request';
-import { signOut } from '@/auth';
+import { get, post } from './request';
+import { auth, signOut } from '@/auth';
 
 async function login(payload: any) {
   const res = await post(ENDPOINTS.LOGIN, {
@@ -15,6 +15,17 @@ async function login(payload: any) {
 }
 
 async function logout() {
+  const session = await auth();
+  if (session?.refresh_token) {
+    const logoutRes = await requestLogout(
+      { refresh_token: session?.refresh_token },
+      { Authorization: `Bearer ${session?.access_token}` }
+    );
+    if (logoutRes.error) {
+      throw logoutRes.error;
+    }
+  }
+
   const res = await signOut({
     redirect: false
   });
@@ -41,4 +52,18 @@ async function refresh(refresh_token: string) {
   return await res.json();
 }
 
-export { getMe, login, logout, refresh };
+async function getUser(params: any, headers = {}) {
+  const res = await get(ENDPOINTS.USERS, {
+    headers: {
+      ...headers
+    },
+    params,
+    cache: 'no-cache'
+  });
+
+  if (!res.ok) return new Promise(async (_, rej) => rej(await res.json()));
+
+  return await res.json();
+}
+
+export { getMe, login, logout, refresh, getUser };

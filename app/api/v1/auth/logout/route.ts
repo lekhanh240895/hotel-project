@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   const decoded = verifyToken(access_token, 'access') as JwtPayload;
 
   if (!decoded) {
-    const error = ApiError.fromUnauthorized();
+    const error = ApiError.fromInvalidToken();
     return handleError(error, 401);
   }
   const userId = decoded.userId;
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
   const token = await AvailableToken.findOne({ refresh_token });
 
   if (!token) {
-    const error = ApiError.fromUnauthorized();
+    const error = ApiError.fromInvalidToken();
     return handleError(error, 401);
   }
 
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         user: userId
       },
       {
-        refresh_token: refresh_token
+        refresh_token
       }
     ]
   });

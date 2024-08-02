@@ -1,5 +1,8 @@
+import { signIn } from '@/auth';
 import ENDPOINTS from '../endpoints';
 import { get, post } from '../request';
+import { mongooseConnect } from '../mongoose';
+import { APP_API_KEY } from '../constants/common';
 
 async function requestLogin(payload: any, headers = {}) {
   const res = await post(ENDPOINTS.LOGIN, {
@@ -74,6 +77,42 @@ async function requestLogout(payload: any, headers = {}) {
 
   return await res.json();
 }
+
+export async function socialLogin(type: string) {
+  const res: {
+    profile: any;
+  } = await signIn(type);
+
+  const profile = res.profile;
+  handleSocialLogin(profile);
+}
+
+export const handleSocialLogin = async (profile: any) => {
+  try {
+    await mongooseConnect();
+
+    const res = await requestRegister(
+      {
+        email: profile?.email,
+        full_name: profile?.name,
+        image: profile?.picture,
+        is_verified: profile?.email_verified,
+        grant_type: 'social_login'
+      },
+      {
+        'x-api-key': APP_API_KEY
+      }
+    );
+
+    if (res.error) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
 
 export {
   requestLogin,
